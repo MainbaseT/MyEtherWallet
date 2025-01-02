@@ -29,7 +29,8 @@ import { ETH, HOLESKY } from '@/utils/networks/types';
 
 const SUPPORTED_NETWORKS = [ETH, HOLESKY];
 const API = 'https://coinbase-staking.mewapi.io/staking';
-const MIN_GAS_LIMIT = 400000;
+// const API = 'http://127.0.0.1:3000/staking';
+const MIN_GAS_LIMIT = 210000;
 
 export {
   COINBASE_STAKING_ROUTES,
