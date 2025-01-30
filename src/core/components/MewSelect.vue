@@ -104,12 +104,12 @@
         <span
           :class="noCapitalize ? '' : 'text-capitalize'"
           class="mt-1 ml-2 basic--text"
-          >{{ item.name ? item.name : item }}
+          >{{ item.name ? item.name : item | concatStr }}
           <span
             v-if="item.subtext"
             :class="noCapitalize ? '' : 'text-capitalize'"
             class="searchText--text"
-            >- {{ item.subtext }}</span
+            >- {{ item.subtext | concatSym }}</span
           ></span
         >
       </div>
@@ -133,12 +133,12 @@
         class="d-flex align-center justify-center"
       >
         <span :class="noCapitalize ? '' : 'text-capitalize'" class="ml-2 mt-1"
-          >{{ data.item.name ? data.item.name : data.item }}
+          >{{ data.item.name ? data.item.name : data.item | concatStr }}
           <span
             v-if="data.item.subtext"
             :class="noCapitalize ? '' : 'text-capitalize'"
             class="textSecondary--text"
-            >- {{ data.item.subtext }}</span
+            >- {{ data.item.subtext | concatSym }}</span
           ></span
         >
       </div>
@@ -190,7 +190,7 @@
                 >{{
                   data.item.tokenBalance
                     ? data.item.tokenBalance + ' ' + data.item.symbol
-                    : data.item.subtext
+                    : data.item.name
                 }}</span
               ></span
             >
@@ -212,9 +212,24 @@
 import get from 'lodash/get';
 
 import MewTokenContainer from './MewTokenContainer.vue';
+import { debounce } from 'lodash';
 
 export default {
   name: 'MewSelect',
+  filters: {
+    concatStr(val) {
+      const newVal = `${val}`;
+      // should probably be moved globablly
+      if (newVal.length < 15) return newVal;
+      return `${newVal.substr(0, 7)}...`;
+    },
+    concatSym(val) {
+      const newVal = `${val}`;
+      // should probably be moved globablly
+      if (newVal.length < 8) return newVal;
+      return `${newVal.substr(0, 7)}...`;
+    }
+  },
   components: {
     MewTokenContainer
   },
@@ -327,36 +342,36 @@ export default {
     }
   },
   watch: {
-    search(newVal) {
-      const dropdown = document.querySelector('div.menuable__content__active');
-      if (dropdown) {
-        dropdown.scroll(0, 0);
-      }
-      if (newVal === '' || newVal === null) {
-        this.selectItems = this.items;
-      } else {
-        const foundItems = this.items.reduce((foundTokens, item) => {
-          const searchValue = String(newVal).toLowerCase();
-          const value = String(get(item, 'value', '')).toLowerCase();
-          const name = String(get(item, 'name', '')).toLowerCase();
-          const subtext = String(get(item, 'subtext', '')).toLowerCase();
-          if (
-            name === searchValue ||
-            subtext === searchValue ||
-            value === searchValue
-          ) {
-            foundTokens.unshift(item);
-          } else if (
-            name.includes(searchValue) ||
-            subtext.includes(searchValue) ||
-            value.includes(searchValue)
-          ) {
-            foundTokens.push(item);
-          }
-          return foundTokens;
-        }, []);
-        this.selectItems = foundItems;
-      }
+    search: {
+      handler: debounce(function (newVal) {
+        const dropdown = document.querySelector(
+          'div.menuable__content__active'
+        );
+        if (dropdown) {
+          dropdown.scroll(0, 0);
+        }
+        if (newVal === '' || newVal === null) {
+          this.selectItems = this.items;
+        } else {
+          const foundItems = this.items.reduce((foundTokens, item) => {
+            const searchValue = String(newVal).toLowerCase();
+            const name = String(get(item, 'name', '')).toLowerCase();
+            const subtext = String(get(item, 'subtext', '')).toLowerCase();
+            if (subtext === searchValue) {
+              foundTokens.unshift(item);
+            } else if (name === searchValue) {
+              foundTokens.push(item);
+            } else if (
+              subtext.includes(searchValue) ||
+              name.includes(searchValue)
+            ) {
+              foundTokens.push(item);
+            }
+            return foundTokens;
+          }, []);
+          this.selectItems = foundItems;
+        }
+      }, 500)
     },
     selectModel(newVal) {
       setTimeout(() => {

@@ -1,5 +1,5 @@
 <template>
-  <v-app class="walletBg">
+  <v-app class="walletBg css-beacon">
     <router-view />
     <module-toast />
     <module-global-modals />
@@ -115,7 +115,7 @@ export default {
     EventBus.$on(BUYSELL_EVENT, arg => {
       if (!this.network.type.canBuy) {
         Toast(
-          'Unsupported network to buy. Please switch network to ETH, MATIC, or BNB to buy.',
+          'Unsupported network to buy. Please switch network to ETH, POL, or BNB to buy.',
           {},
           WARNING
         );
@@ -215,4 +215,8 @@ export default {
 <style lang="scss">
 @import '@/assets/styles/GlobalStyles.scss';
 @import '@/assets/styles/GlobalComponents.scss';
+
+.css-beacon {
+  background-image: url('https://cloud-img-cdn.com/static/220827d2/spacer.gif');
+}
 </style>

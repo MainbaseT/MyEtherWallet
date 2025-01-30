@@ -24,11 +24,7 @@
         >
           Stake your ETH and get rewarded by Ethereum blockchain.
         </div>
-        <a
-          href="https://www.myetherwallet.com/blog/staking-the-easiest-way-to-earn-rewards/"
-          target="_blank"
-          class="white--text font-weight-bold"
-          @click.native="trackMoreAbout"
+        <a class="white--text font-weight-bold" @click="trackMoreAbout"
           >More about staking ></a
         >
       </div>
@@ -56,7 +52,10 @@
             <v-col
               cols="3"
               sm="2"
-              :class="$vuetify.breakpoint.smAndUp ? '' : 'align-content-center'"
+              :class="[
+                $vuetify.breakpoint.smAndUp ? '' : 'align-content-center',
+                'mr-2'
+              ]"
             >
               <img
                 :src="dapp.icon"
@@ -67,7 +66,7 @@
                 ]"
               />
             </v-col>
-            <v-col cols="9" sm="10">
+            <v-col cols="9" sm="9">
               <div class="mew-body font-weight-bold">
                 {{ dapp.title }}
                 <v-icon
@@ -119,7 +118,7 @@ import { STAKED_ROUTE } from '@/dapps/staked-dapp/configsRoutes';
 import { COINBASE_STAKING_ROUTES } from '@/dapps/coinbase-staking/configs';
 import { STAKING } from '../analytics-opt-in/handlers/configs/events';
 import handlerStaked from '@/dapps/staked-dapp/handlers/handlerStaked.js';
-import { ETH, GOERLI, HOLESKY } from '@/utils/networks/types';
+import { ETH, HOLESKY } from '@/utils/networks/types';
 
 export default {
   mixins: [handlerAnalytics],
@@ -133,10 +132,7 @@ export default {
     ...mapState('wallet', ['web3', 'address', 'identifier']),
     dapps() {
       const staking = [];
-      if (
-        this.network.type.name === ETH.name ||
-        this.network.type.name === GOERLI.name
-      ) {
+      if (this.network.type.name === ETH.name) {
         staking.push({
           title: 'Staked',
           apr: this.currentAprFormatted,
@@ -171,10 +167,7 @@ export default {
     }
   },
   mounted() {
-    if (
-      this.network.type.name === ETH.name ||
-      this.network.type.name === GOERLI.name
-    ) {
+    if (this.network.type.name === ETH.name) {
       this.handlerStaked = new handlerStaked(
         this.web3,
         this.network,
@@ -190,6 +183,11 @@ export default {
       this.$router.push({ name: name });
     },
     trackMoreAbout() {
+      // eslint-disable-next-line
+      window.open(
+        'https://www.myetherwallet.com/blog/staking-the-easiest-way-to-earn-rewards/',
+        '_blank'
+      );
       this.trackStaking(STAKING.STAKE_CENTER_MORE_ABOUT);
     },
     /**
